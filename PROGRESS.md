@@ -503,3 +503,58 @@ report `0.1.1` / `Amon Lal` → silent uninstall → nothing left behind.
 - `tests/MANUAL_CHECKLIST.md` has no section for the Phase 16 crackling test; it predates the fix.
 - The donate QR is public and permanent in git history (Amon's informed choice).
 - GitHub Projects can't be managed from here — the token lacks `read:project` / `project` scope.
+
+---
+
+## Phase 18 — v0.1.2 Bug Fix (2026-11-06)
+
+### Root cause of CreateProcess code 2
+
+A user on a different machine (`C:\Users\prate\`) downloaded the v0.1.1 installer and hit:
+
+> Unable to execute file: `C:\Users\prate\AppData\Local\Programs\DuoSound\C:\Users\prate\AppData\Local\Programs\DuoSound\DuoSound.exe`
+> CreateProcess failed; code 2.
+
+The path is doubled. `GetMainExe()` in the Inno Setup `[Code]` section returned
+`ExpandConstant('{app}\DuoSound.exe')` — a full path — while the `[Run]` entry already
+prefixed `{app}\`, producing `{app}\{app}\DuoSound.exe`.
+
+### Fix
+
+`GetMainExe` now returns only the filename (`DuoSound.exe` or `DuoSound_Lite.exe`).
+The comment in the `.iss` file explains the contract.
+
+### Decision: fix-forward to v0.1.2
+
+Three people had downloaded the v0.1.1 installer. Swapping the asset would leave two different
+files both labeled v0.1.1. Instead: bump version, rebuild everything, publish a new release,
+and mark v0.1.1 as superseded.
+
+Verified with a throwaway `_runtest.iss` (both `postinstall` and `skipifsilent` stripped so the
+launch step runs in a silent install). Result: `LAUNCH OK — running from: ...\DS012\DuoSound.exe`.
+
+### What shipped in v0.1.2
+
+| Asset | Size |
+|---|---|
+| `DuoSound_Setup.exe` | 93.1 MB |
+| `DuoSound_Full_Portable.zip` | 83.0 MB |
+| `DuoSound_Lite_Portable.zip` | 33.1 MB |
+
+**https://github.com/AmonHooriLal/duosound/releases/tag/v0.1.2**
+
+v0.1.1 release notes updated to point downloaders at v0.1.2.
+
+### Manual checklist additions
+
+- §5: explicit row for the "Launch DuoSound now" checkbox with a note that it must be tested by
+  hand every release (automated silent installs skip it via `postinstall` + `skipifsilent`).
+- §9: new crackling regression test for Full and Lite — tests all six UI interactions while audio
+  plays, checks for underruns/drops/late in FINAL STATS.
+
+### Still open
+
+- **Build is unsigned** — SmartScreen warning on every download. Code-signing cert is the only fix.
+- Portable ZIPs barely compress (payload is already packed by PyInstaller).
+- Real 2-headset run with the **Flet** window (Lite has real-hardware data).
+- GitHub Projects scope (`read:project`) requires interactive `gh auth refresh`.
