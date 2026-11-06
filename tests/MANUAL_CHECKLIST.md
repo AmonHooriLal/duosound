@@ -63,11 +63,22 @@ Build with `build_exe.bat installer`, then run `dist\DuoSound_Setup.exe` on a cl
 
 | Check | Result |
 |---|---|
+| Welcome page appears, with the banner and "Created by Amon Lal" | Pass / Fail |
+| **No UAC / administrator prompt at any point** (install is per-user) | Pass / Fail |
+| Installs to `%LOCALAPPDATA%\Programs\DuoSound` | Pass / Fail |
 | Installer shows "Full Graphics" and "Classic Graphics" radio buttons | Pass / Fail |
 | Selecting Full → creates DuoSound shortcut (not Lite) | Pass / Fail |
 | Selecting Lite → creates DuoSound (Lite) shortcut | Pass / Fail |
 | Both DuoSound.exe and DuoSound_Lite.exe exist in install folder | Pass / Fail |
 | "Full Graphics" and "Classic Graphics" shortcuts both present in Start Menu | Pass / Fail |
+| **Tick "Launch DuoSound now" on the last page → the app actually opens** | Pass / Fail |
+
+> **The last row must be done by hand, every release.** It cannot be automated: the `[Run]` entry
+> carries `postinstall` (it is a checkbox on the Finished page) and `skipifsilent`, so a silent
+> install never executes it. v0.1.1 shipped with that step broken — `GetMainExe` returned a full
+> path while `[Run]` prepended the directory again, producing
+> `...\DuoSound\...\DuoSound\DuoSound.exe` and "CreateProcess failed; code 2". Scripted testing
+> reported a clean install because it never reached the one line that was wrong.
 
 ---
 
@@ -112,8 +123,31 @@ Run DuoSound_Lite.exe from the extracted folder on a machine with an HDD and no 
 
 ---
 
+## 9. No Crackling While Using the Window (regression test for Phase 16)
+
+DuoSound copies live audio while its own window is in use, so UI work can starve the audio threads.
+Three defences exist (thread priority, 1 ms GIL interval, blur off during playback) and all three
+are invisible until they break. **Test both editions** — the blur fix only applies to Full.
+
+Start with two Bluetooth headsets connected and a movie playing, then press **Start**.
+Wear one earbud and click each control several times in a row.
+
+| Check | Full | Lite |
+|---|---|---|
+| Theme switch (Light / Dark / System) — the worst case | Pass / Fail | Pass / Fail |
+| Help button, and Back from Help | Pass / Fail | Pass / Fail |
+| Options open / close | Pass / Fail | Pass / Fail |
+| Log open / close | Pass / Fail | Pass / Fail |
+| Unmute / mute speakers | Pass / Fail | Pass / Fail |
+| Resizing and dragging the window | Pass / Fail | Pass / Fail |
+
+Any crackle, pop or momentary pause is a **failure**, not a quirk of the headset. Confirm against
+the log afterwards: `underruns`, `drop` and `late` must all stay at 0 in the FINAL STATS line.
+
+---
+
 ## Sign-off
 
 | Reviewer | Date | Version | Notes |
 |---|---|---|---|
-| | | 0.1.1 | |
+| | | 0.1.2 | |

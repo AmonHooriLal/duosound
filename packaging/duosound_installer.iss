@@ -3,7 +3,7 @@
 ; Both DuoSound.exe (Flet) and DuoSound_Lite.exe (tkinter) must exist in dist\ before running this.
 
 #define MyAppName      "DuoSound"
-#define MyAppVersion   "0.1.1"
+#define MyAppVersion   "0.1.2"
 #define MyAppPublisher "Amon Lal"
 #define MyAppURL       "https://github.com/AmonHooriLal/duosound"
 #define MyAppExeFull   "DuoSound.exe"
@@ -86,10 +86,12 @@ FinishedLabelNoIcons=Setup has finished installing [name] on your computer.%n%nC
 Filename: "{app}\{code:GetMainExe}";  Description: "Launch {#MyAppName} now";  Flags: nowait postinstall skipifsilent
 
 [Code]
+// Return the file NAME only. The [Run] entry above already supplies the app-directory prefix, so
+// returning a full path here concatenates the directory twice and CreateProcess fails with code 2.
 function GetMainExe(Param: String): String;
 begin
   if WizardIsComponentSelected('full') then
-    Result := ExpandConstant('{app}\{#MyAppExeFull}')
+    Result := '{#MyAppExeFull}'
   else
-    Result := ExpandConstant('{app}\{#MyAppExeLite}');
+    Result := '{#MyAppExeLite}';
 end;

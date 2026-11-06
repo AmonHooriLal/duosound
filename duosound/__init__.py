@@ -1,5 +1,5 @@
 """DuoSound - play one laptop's audio on several Bluetooth headphones, in sync."""
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 SAMPLERATE = 48000   # Hz - native rate of the Windows audio engine and A2DP
 CHANNELS = 2         # stereo
