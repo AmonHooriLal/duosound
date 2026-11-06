@@ -474,13 +474,32 @@ link would have 404'd; and `.pytest_cache/` was not ignored.
 The commit was later amended to drop the `Co-Authored-By` trailer and force-pushed
 (`3b07e15` → `2944494`), with tag `v0.1.1` re-pointed to match.
 
+### v0.1.1 published
+
+Amon ran `DuoSound_Setup.exe` by hand and confirmed the wizard. Everything was then rebuilt from a
+clean `dist/` so the corrected publisher URL was baked in, and the release went out:
+
+**https://github.com/AmonHooriLal/duosound/releases/tag/v0.1.1**
+
+| Asset | Size |
+|---|---|
+| `DuoSound_Setup.exe` | 93.1 MB |
+| `DuoSound_Full_Portable.zip` | 83.0 MB |
+| `DuoSound_Lite_Portable.zip` | 33.1 MB |
+
+The portable path ran for the first time since it was repaired, and worked. Before publishing, the
+rebuilt installer was verified by script: silent install with no admin → exit 0 → file properties
+report `0.1.1` / `Amon Lal` → silent uninstall → nothing left behind.
+
 ### Still open
 
-- **Amon has not yet manually run the new `DuoSound_Setup.exe`** to confirm the wizard.
-- `dist/DuoSound_Setup.exe` predates the username fix, so its publisher URL still says `amonlal`.
-  **Rebuild before attaching it to a GitHub Release.**
-- No binaries attached to the release yet — `dist/` is gitignored by design; see
-  `RELEASE_CHECKLIST.md` step 8.
-- Portable ZIPs not built since the portable path was fixed.
-- The donate QR is now public and permanent in git history (Amon's informed choice).
-- Build is unsigned: Windows still shows "Windows protected your PC".
+- **Build is unsigned**, so every user meets "Windows protected your PC" and must click
+  *More info → Run anyway*. A code-signing certificate is the only fix. Biggest remaining friction.
+- **The portable ZIPs barely compress** — 83.0 MB zipped against an 83.4 MB exe, because
+  PyInstaller already packs the payload. They work, but offering the raw `.exe` files as the
+  portable download would be simpler and no larger.
+- Real 2-headset run against the **Flet** window (the Lite build has real-hardware evidence:
+  18 min, 0 underruns, 0 drops, 1 ms worst gap on a OnePlus Bullets Wireless Z3).
+- `tests/MANUAL_CHECKLIST.md` has no section for the Phase 16 crackling test; it predates the fix.
+- The donate QR is public and permanent in git history (Amon's informed choice).
+- GitHub Projects can't be managed from here — the token lacks `read:project` / `project` scope.

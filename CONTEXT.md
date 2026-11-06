@@ -7,6 +7,7 @@
 > Contributing and Git workflow: [CONTRIBUTING.md](CONTRIBUTING.md). Shipping a version: [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
 >
 > **Repository:** https://github.com/AmonHooriLal/duosound — public since 2026-11-06, `main`, tag `v0.1.1`.
+> **Latest release:** [v0.1.1](https://github.com/AmonHooriLal/duosound/releases/tag/v0.1.1) — installer plus two portable ZIPs.
 
 ## 1. Goal
 Let 2+ people watch a movie/video on one Windows laptop, each wearing their own Bluetooth headphones,

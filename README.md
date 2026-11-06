@@ -9,8 +9,13 @@ Made by **Amon Lal** · version 0.1.1
 
 ## Installation
 
+> **[⬇ Download the latest release](https://github.com/AmonHooriLal/duosound/releases/latest)**
+
 ### Option A — Installer (recommended)
-Download **DuoSound_Setup.exe** and run it. The installer lets you choose:
+Download **DuoSound_Setup.exe** from the
+[releases page](https://github.com/AmonHooriLal/duosound/releases/latest) and run it. It installs
+for your user account only, so it **never asks for an administrator password** — it works on a
+locked-down work laptop. The installer lets you choose:
 
 | Option | Best for |
 |---|---|
@@ -22,7 +27,10 @@ Both versions are installed so you can switch any time by running the other `.ex
 If Windows says *"Windows protected your PC"*, click **More info → Run anyway** (the program isn't code-signed yet).
 
 ### Option B — Portable ZIP
-Download **DuoSound_Full_Portable.zip** or **DuoSound_Lite_Portable.zip**, unzip anywhere (USB stick works), and run the `.exe` inside. No install needed. Settings are saved to `%APPDATA%\DuoSound\`, not inside the ZIP folder.
+Download **DuoSound_Full_Portable.zip** or **DuoSound_Lite_Portable.zip** from the
+[releases page](https://github.com/AmonHooriLal/duosound/releases/latest), unzip anywhere (a USB
+stick works), and run the `.exe` inside. No install needed — good where you can't install software.
+Settings are saved to `%APPDATA%\DuoSound\`, not inside the ZIP folder.
 
 ### Option C — Run from source (terminal)
 Needs Python 3.10+. Pick the edition when you install the requirements:
@@ -59,10 +67,12 @@ administrator rights.
 
 ---
 
-## Get it (old single-exe)
-1. Download **DuoSound.exe** and double-click it. Nothing else to install: no Python, no drivers.
-2. If Windows says *"Windows protected your PC"*, click **More info → Run anyway** (the program isn't code-signed yet).
-3. Connect everyone's headphones in Windows (Settings → Bluetooth & devices), press **Start** in DuoSound and play the movie.
+## First run
+1. Connect everyone's headphones in Windows (Settings → Bluetooth & devices). Wired ones work too.
+2. Open DuoSound. It picks a sound source and ticks the headphones for you.
+3. Press **Start**, then play the movie in any app.
+4. If one pair sounds ahead of the others, open **Adjust sync** on that row — or press **Calibrate**
+   to measure every pair automatically using the laptop microphone.
 
 Everything below is also inside the app: press **Help** (or F1).
 
