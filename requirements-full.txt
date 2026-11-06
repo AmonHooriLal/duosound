@@ -1,0 +1,9 @@
+# DuoSound Full Graphics (the Flet glass window over animated scenery).
+# Installs everything in requirements.txt, then flet on top.
+#   pip install -r requirements-full.txt
+#   python main.py
+#
+# For the lighter Classic Graphics build, use requirements.txt on its own and run main_lite.py.
+-r requirements.txt
+
+flet==1.1.0              # the window (duosound/ui_flet); tkinter (duosound/ui) is the fallback if flet is missing

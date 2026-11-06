@@ -1,0 +1,47 @@
+# Consistent line endings regardless of who clones this and on which OS.
+#
+# "text=auto" stores every text file with LF inside the repository and checks it out with the
+# platform's own endings. That keeps diffs clean without forcing LF into the working tree, which
+# matters here: Windows batch files must keep CRLF or multi-line blocks (the ^ continuations in
+# build_exe.bat) stop working, so those are pinned explicitly below.
+* text=auto
+
+# Source and docs: LF everywhere, including in the working tree.
+*.py      text eol=lf
+*.md      text eol=lf
+*.txt     text eol=lf
+*.toml    text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.json    text eol=lf
+*.spec    text eol=lf
+.gitignore      text eol=lf
+.gitattributes  text eol=lf
+
+# Windows-only scripts: CRLF, or cmd.exe mis-parses them.
+*.bat     text eol=crlf
+*.cmd     text eol=crlf
+*.ps1     text eol=crlf
+# Inno Setup reads the script with Windows conventions.
+*.iss     text eol=crlf
+
+# Binary: never normalise, never diff as text.
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ico     binary
+*.bmp     binary
+*.ttf     binary
+*.otf     binary
+*.woff    binary
+*.woff2   binary
+*.zip     binary
+*.exe     binary
+*.dll     binary
+*.wav     binary
+*.mp3     binary
+
+# Keep generated/vendored files out of language stats and review diffs on GitHub.
+duosound/ui_flet/fonts/*  linguist-vendored
+tools/demos/*             linguist-documentation

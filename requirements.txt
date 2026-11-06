@@ -1,0 +1,11 @@
+soundcard>=0.4.6,<0.5   # 0.4.3-0.4.5 break with numpy 2 (fromstring); engine.py uses 0.4.x internals
+numpy>=1.26
+pystray>=0.19
+Pillow>=10.0
+pycaw>=20251023         # first release with SetDefaultDevice; reads/fixes volume + mute (loopback records after the volume)
+# tools/test_devices.py can also use amon_welcome (pip install -e D:\PG\tools\amon_welcome); it falls back to plain text
+# building the .exe: pip install pyinstaller, then run build_exe.bat
+#
+# This file is everything DuoSound Lite (Classic Graphics, tkinter) needs - run: python main_lite.py
+# For Full Graphics (the Flet glass window) install requirements-full.txt instead, which adds flet.
+# main.py works with either: without flet it falls back to the tkinter window automatically.
