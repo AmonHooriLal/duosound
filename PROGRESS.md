@@ -23,6 +23,7 @@ Newest entries at the bottom of each phase. Design and reasons are in [CONTEXT.m
 | 14 | Flet glass window built and verified | ☑ |
 | 15 | Dual-build pipeline + 20ms saver mode | ☑ |
 | 16 | **Audio crackling fix during UI interaction** | ☑ |
+| 17 | **Release engineering: build fixes, installer wizard, versioning, first public GitHub push** | ☑ |
 
 ---
 
@@ -370,3 +371,116 @@ The third cause was confirmed by testing: tkinter (no backdrop blur) had zero cr
 
 **Test result**
 Theme toggle, Help button, Options, Log — all silent during playback. `tests/test_backend.py` 28/28.
+
+---
+
+## Phase 17 — Release engineering and first public GitHub push (2026-11-06) ☑
+
+Everything between "the code works" and "a stranger can download and run it". The headline is that
+the documented build was **completely broken** and nobody had noticed, because the last successful
+build predated a PyInstaller upgrade.
+
+### Tkinter redesign: tried and rolled back
+
+A Flet-matching restyle of the tkinter UI was built (night-ink palette, Canvas rounded-corner `Card`
+widget, three card sections) and then reverted at Amon's request — it did not look right in practice.
+`theme.py`, `widgets.py` and `main_window.py` are back to the original warm-brown design. No git
+history existed yet, so the rollback was a manual restore of the exact prior values; 28/28 tests
+confirmed afterwards. The audio-crackling fixes from Phase 16 were deliberately **not** reverted.
+
+Finding worth keeping: a static Canvas card costs nothing in CPU or GPU and would not reintroduce
+crackling. The rollback was a taste decision, not a performance one.
+
+### Build pipeline was broken — five bugs
+
+| File | Bug | Effect |
+|---|---|---|
+| `build_exe.bat` | `--onefile --windowed` passed alongside a `.spec` | **PyInstaller 6.x hard error.** No exe could be built at all. |
+| `build_exe.bat` | `--onedir` in the portable path | Same error; the specs have no `COLLECT` block, so one-dir was never possible. |
+| `build_exe.bat` | Inno Setup looked for v6 in Program Files only | Installed copy was **v7, per-user** in `%LOCALAPPDATA%`. Never found. |
+| `duosound_installer.iss` | Two `[Types]` entries with `Flags: iscustom` | Inno Setup 6 tolerated it; **v7 refuses to compile**. |
+| `README.md` | "double-click `build_exe.bat`" | It needs an `installer` or `portable` argument, or it just prints usage. |
+
+The onefile/windowed settings were already correct inside the `.spec` files (`a.binaries` inline,
+`console=False`), so the CLI flags were redundant even before they became fatal.
+
+### Installer: per-user, and it now has a wizard
+
+- `PrivilegesRequired=lowest` — Setup never asks for administrator rights, installing to
+  `%LOCALAPPDATA%\Programs\DuoSound`. Amon's call, and the right one for a product whose first
+  priority is zero setup: a locked-down work laptop can still install it.
+- `{commondesktop}` → `{autodesktop}` — the all-users desktop needs admin, so it had to follow.
+- **`DisableWelcomePage=no`.** This was the "there is no setup wizard" complaint: Inno Setup 6+
+  hides the Welcome page *by default*, and with `DisableProgramGroupPage=yes` already set, Setup
+  jumped almost straight to installing.
+- `packaging/make_icon.py` now also generates `wizard_banner.bmp` and `wizard_small.bmp` — warm
+  gradient, app icon, and **Created by Amon Lal**. Regenerated on every build, so they never drift.
+- `[Messages]` block puts the author credit on the Welcome and Finished pages, which are shared by
+  both editions, so it shows whichever one the user picks.
+
+Verified end to end, scripted: silent install with no admin → exit 0 → installed exe launches →
+silent uninstall → **zero leftovers**.
+
+### Terminal install: Lite and Full are now actually separable
+
+`requirements.txt` listed `flet==1.1.0` as a hard dependency, but Lite never imports Flet. A
+Lite-only user was downloading ~50 MB they would never use, and there was no way to choose.
+
+- `requirements.txt` — core only. Enough for Classic Graphics.
+- `requirements-full.txt` — `-r requirements.txt` plus Flet.
+
+The choice *is* which file you install. `main.py` still falls back to tkinter on its own if Flet is
+absent, so nothing hard-fails.
+
+### Versioning: one source of truth
+
+`duosound/__init__.py` is authoritative. `packaging/version_info.txt` was already generated from it
+by `make_icon.py`; only `duosound_installer.iss` hardcoded the number.
+
+**`tools/bump_version.py`** keeps all three in step:
+
+```
+python tools/bump_version.py patch|minor|major
+python tools/bump_version.py --set 1.2.3
+python tools/bump_version.py --check        # verify only
+python tools/bump_version.py patch --dry-run
+```
+
+Atomic writes (`.tmp` → `os.replace`, house rule), refuses a non-increasing bump, self-verifies
+after writing, and `--check` fails loudly on drift. Follows Amon's `amon_welcome` convention with
+`--yes` / `--no-art` / `--user`, and the module is **embedded** so it works for anyone cloning from
+GitHub without Amon's local copy. Tested with a real 0.1.1 → 0.1.2 bump and `--set` restore.
+
+### Git organization
+
+- **`.gitattributes`** — `* text=auto`, with `.bat`/`.cmd`/`.ps1`/`.iss` pinned to **CRLF**.
+  A blanket `eol=lf` would have corrupted the `^` line continuations in `build_exe.bat`.
+- **`CONTRIBUTING.md`** — Conventional Commits, feature branches, the architectural rules that must
+  not break, and the audio-thread discipline from Phase 16.
+- **`RELEASE_CHECKLIST.md`** — nine steps from clean tree to published GitHub Release.
+- **`.gitignore`** — added `.pytest_cache/`, `settings.json`, `restore.json`, the wizard BMPs.
+
+### First public release
+
+**https://github.com/AmonHooriLal/duosound** — public, `main`, tag `v0.1.1`, 67 files / 2.0 MB.
+
+Excluded as intended: `dist/` (215 MB), `packaging/flet_client/` (42 MB), logs, caches, runtime state.
+A secret scan before committing found only false positives (design-system colour "tokens").
+
+Two things caught before the push: the username in `README.md`, `CONTRIBUTING.md` and
+`duosound_installer.iss` was `amonlal` but the real account is **`AmonHooriLal`**, so every published
+link would have 404'd; and `.pytest_cache/` was not ignored.
+
+The commit was later amended to drop the `Co-Authored-By` trailer and force-pushed
+(`3b07e15` → `2944494`), with tag `v0.1.1` re-pointed to match.
+
+### Still open
+
+- **Amon has not yet manually run the new `DuoSound_Setup.exe`** to confirm the wizard.
+- `dist/DuoSound_Setup.exe` predates the username fix, so its publisher URL still says `amonlal`.
+  **Rebuild before attaching it to a GitHub Release.**
+- No binaries attached to the release yet — `dist/` is gitignored by design; see
+  `RELEASE_CHECKLIST.md` step 8.
+- Portable ZIPs not built since the portable path was fixed.
+- The donate QR is now public and permanent in git history (Amon's informed choice).
+- Build is unsigned: Windows still shows "Windows protected your PC".

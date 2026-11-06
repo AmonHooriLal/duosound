@@ -4,6 +4,9 @@
 > This file explains **what** we are building, **how** it works and **why** each decision was made.
 > Keep it current whenever a decision changes. Day-by-day work is tracked in [PROGRESS.md](PROGRESS.md).
 > Who it's for and the product principles: [PRODUCT.md](PRODUCT.md). Visual system: [DESIGN.md](DESIGN.md). Made by **Amon Lal**.
+> Contributing and Git workflow: [CONTRIBUTING.md](CONTRIBUTING.md). Shipping a version: [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md).
+>
+> **Repository:** https://github.com/AmonHooriLal/duosound — public since 2026-11-06, `main`, tag `v0.1.1`.
 
 ## 1. Goal
 Let 2+ people watch a movie/video on one Windows laptop, each wearing their own Bluetooth headphones,
@@ -132,14 +135,27 @@ the scenery freezes while a movie plays. New UI in `duosound/ui_flet/`; tkinter 
 | `duosound/ui/widgets.py` | Headphone row, scroll list, inline banner |
 | `duosound/ui/help_page.py`, `about_page.py` | Help (Read me) page; About + Donate page |
 | `duosound/ui/scenery.py` | Animated moon/sun landscape (tkinter Canvas); **not wired in yet**, pending the tkinter/Flet decision |
+| `duosound/ui_flet/` | Full Graphics window (Flet). `tokens.py` is its design system; `app.py`, `widgets.py`, `pages.py`, `scenery.py`, `icon.py` |
 | `Donate ME QR/GooglePay_QR.png` | Amon's UPI QR, shown on the Donate page (bundled into the .exe) |
-| `packaging/` + `build_exe.bat` | Build `dist\DuoSound.exe` (icon, version info, PyInstaller spec) |
+| `packaging/` + `build_exe.bat` | Build `dist\DuoSound.exe`, `DuoSound_Lite.exe` and `DuoSound_Setup.exe`. Run `build_exe.bat installer` or `portable` — it needs one of those arguments |
+| `packaging/make_icon.py` | Generates `duosound.ico`, `version_info.txt` and the two installer wizard BMPs. Run first by every build, so they never drift |
+| `packaging/duosound_installer.iss` | Inno Setup script. Per-user install (no admin), Full/Classic component choice, "Created by Amon Lal" wizard |
+| `requirements.txt` / `requirements-full.txt` | Core deps (enough for Lite) / core plus Flet (Full). This is how a terminal user picks an edition |
+| `tools/bump_version.py` | **Version bump**: updates `__init__.py`, `version_info.txt` and the installer script together. `--check` verifies they agree |
 | `tools/test_devices.py` | Terminal check: list devices, play a test tone on each (amon_welcome style, embedded) |
 | `tools/demos/scenery_demo.py` | Standalone demo of the animated scenery (Day/Night button) |
 | `tests/test_backend.py` | 28 checks: device types, settings, restore/crash recovery (real speakers, stand-in engine), ring buffer |
 | `tests/test_ui_messages.py` | 9 checks: one auto-vanishing message, Start/Calibrate greyed out with a reason |
+| `tests/MANUAL_CHECKLIST.md` | 8-section manual pass before a release is signed off |
+| `CONTRIBUTING.md` | Git workflow (Conventional Commits, feature branches) and the rules that must not break |
+| `RELEASE_CHECKLIST.md` | Nine steps from a clean tree to a published GitHub Release |
+| `.gitattributes` | Line endings. `.bat`/`.cmd`/`.iss` are pinned to CRLF — a blanket LF breaks batch continuations |
 | `Run DuoSound.bat` | Run from source (finds `pyw`/`py`/`pythonw`/`python`, explains if Python is missing) |
 | `Test Devices.bat` | Double-click launcher for the device test (Windows Terminal) |
+
+**Not in git:** `dist/` (the built `.exe` and `.zip` files), `packaging/flet_client/` (42 MB Flet
+runtime, re-fetched on demand), `logs/`, `__pycache__/`, and the generated icon / version / wizard
+files. Binaries are published as **GitHub Release attachments**, never committed.
 
 ## 9. Glossary
 - **A2DP** — the classic Bluetooth profile for stereo music.
