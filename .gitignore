@@ -40,3 +40,8 @@ duosound_test_*/
 # packaging/make_icon.py
 # packaging/fetch_flet_client.py
 # packaging/rthook_flet.py
+
+# Private agent/context notes (kept locally, not pushed)
+Agent.md
+CONTEXT.md
+PRODUCT.md
