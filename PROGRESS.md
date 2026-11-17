@@ -558,3 +558,10 @@ v0.1.1 release notes updated to point downloaders at v0.1.2.
 - Portable ZIPs barely compress (payload is already packed by PyInstaller).
 - Real 2-headset run with the **Flet** window (Lite has real-hardware data).
 - GitHub Projects scope (`read:project`) requires interactive `gh auth refresh`.
+
+## 2026-11-17 — Backend debug pass
+
+- **Fixed `Ring.drop()` negative count** (`engine.py`): with the movie paused and the delay lowered, the lagging
+  buffer average could ask for a negative drop, which rewound the ring and replayed audio. Now clamped to 0.
+- Noted, not changed: `toggle_speakers` reads `_restore` without the lock; captured warnings reach stderr, not the
+  log file; `catch_warnings` used across threads; unvalidated `restore.json`.

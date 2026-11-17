@@ -122,7 +122,7 @@ class Ring:
 
     def drop(self, k: int) -> int:
         with self.lock:
-            k = min(k, self.n)
+            k = max(0, min(k, self.n))      # negative k would rewind and replay already-played audio
             self.r = (self.r + k) % self.cap
             self.n -= k
             return k
